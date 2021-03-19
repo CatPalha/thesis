@@ -20,28 +20,32 @@ win = pygame.display.set_mode((width, height))
 
 pygame.display.set_caption("Midge Ecosystem")
 
-def draw_window():
+def draw_window(name, ):
     """Draw the windows and static agents"""
+
+    for item in folder_name:
+
     win.fill(white)
     #Place in the window where the midge will be drawn
-    cocoa_tree_1 = pygame.image.load(os.path.join("Assets", "cocoa_tree.png"))
-    cocoa_tree_2 = pygame.image.load(os.path.join("Assets", "cocoa_tree.png"))
-    cocoa_tree_3 = pygame.image.load(os.path.join("Assets", "cocoa_tree.png"))
-    cocoa_tree_4 = pygame.image.load(os.path.join("Assets", "cocoa_tree.png"))
-    cocoa_tree_5 = pygame.image.load(os.path.join("Assets", "cocoa_tree.png"))
-    cocoa_tree_6 = pygame.image.load(os.path.join("Assets", "cocoa_tree.png"))
+    agent_name = pygame.image.load(os.pathjoin("folder_name", "item_name")
+    # cocoa_tree_1 = pygame.image.load(os.path.join("Assets", "cocoa_tree.png"))
+    # cocoa_tree_2 = pygame.image.load(os.path.join("Assets", "cocoa_tree.png"))
+    # cocoa_tree_3 = pygame.image.load(os.path.join("Assets", "cocoa_tree.png"))
+    # cocoa_tree_4 = pygame.image.load(os.path.join("Assets", "cocoa_tree.png"))
+    # cocoa_tree_5 = pygame.image.load(os.path.join("Assets", "cocoa_tree.png"))
+    # cocoa_tree_6 = pygame.image.load(os.path.join("Assets", "cocoa_tree.png"))
 
-    water_1 = pygame.image.load(os.path.join("Assets", "water.png"))
-    water_1 = pygame.transform.scale(water_1, (60, 60))
+    # water_1 = pygame.image.load(os.path.join("Assets", "water.png"))
+    # water_1 = pygame.transform.scale(water_1, (60, 60))
 
-    #Static agents
-    win.blit(cocoa_tree_1, ((0,0)))
-    win.blit(cocoa_tree_2, ((300,200)))
-    win.blit(cocoa_tree_3, ((400,200)))
-    win.blit(cocoa_tree_4, ((850,550)))
-    win.blit(cocoa_tree_5, ((750,550)))
-    win.blit(cocoa_tree_6, ((100,0)))
-    win.blit(water_1, ((385, 285)))
+    # #Static agents
+    win.blit(item_name, ((x, y)))
+    # win.blit(cocoa_tree_1, ((0,0)))
+    # win.blit(cocoa_tree_2, ((300,200)))
+    # win.blit(cocoa_tree_3, ((400,200)))
+    # win.blit(cocoa_tree_4, ((850,550)))
+    # win.blit(cocoa_tree_5, ((750,550)))
+    # win.blit(cocoa_tree_6, ((100,0)))
 
 
 
@@ -172,6 +176,25 @@ def pause_restart():
 #             #     messagebox.showinfo("Midge info", "Generation number: 3 \n Reproduction: False")
 
 
+def intro():
+
+    intro = True
+
+    while intro:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+    
+    win.fill(gray)
+
+    title_menu = pygame.font.Font('verdana', 20)
+    textImg, textRect = text_object("Main Menu", title_menu)
+    textRect.center = (width / 2, height - 5)
+    win.blit(textImg, textRect)
+    pygame.display.update()
+
+
         
 midges = []
 
@@ -188,6 +211,8 @@ for i in range(1):
 def main():
     #limit FPS
     clock = pygame.time.Clock() 
+
+
 
     run = True
     while run:
@@ -212,6 +237,7 @@ def main():
                 
     #         #     messagebox.showinfo("Midge info", "Generation number: 3 \n Reproduction: False")
 
+        #intro()
         draw_window()
 
 
@@ -230,6 +256,7 @@ def main():
 
     pygame.quit()
     
+
 
 #This guarantees the function main only runs when this files runs, if I want to run from somewhere else I need to delete this
 if __name__ == "__main__":
