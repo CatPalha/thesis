@@ -1,4 +1,5 @@
 import pygame
+#from pygame_functions import makeTextBox, textBoxInput
 
 class Menu():
     def __init__(self, app):
@@ -123,6 +124,9 @@ class ParametersMenu(Menu):
         self.ecosystem_x, self.ecosystem_y = self.mid_width, self.mid_height - 80
         self.agents_x, self.agents_y = self.mid_width, self.mid_height - 20
         #self.reproduction_x, self.reproduction_y = self.mid_width, self.mid_height + 40
+        self.agent_input_x, self.agent_input_y = self.mid_width, self.mid_height - 100
+        # self.wordBox_1 = makeTextBox(self.mid_width, self.mid_height, "Enter number of agents here", 0, 40)
+        # self.entry_1 = textBoxInput(self.wordBox_1)
 
 
     def display_menu(self):
@@ -133,12 +137,20 @@ class ParametersMenu(Menu):
             self.app.check_events()
             self.check_input()
             self.app.display.fill(self.app.gray)
-            self.app.draw_text("Parameters", 60, self.app.width / 2, 100)
-            self.app.draw_text("Ecosystem", 50, self.ecosystem_x, self.ecosystem_y)
-            self.app.draw_text("Agents", 50, self.agents_x, self.agents_y)
+        
+            #self.app.draw_text("Parameters", 60, self.app.width / 2, 100)
+            # self.app.draw_text("Ecosystem", 50, self.ecosystem_x, self.ecosystem_y)
+            # self.app.draw_text("Agents", 50, self.agents_x, self.agents_y)
             #self.app.draw_text("Reproduction", 50, self.reproduction_x, self.reproduction_y)
 
-            self.draw_cursor()
+            #self.draw_cursor()
+            self.app.display.fill(self.app.gray)
+            self.app.draw_text("Insert the parameters", 60, self.app.width / 2, 100)
+            self.app.draw_text("Number of Midges:", 40, self.agent_input_x - 90, self.agent_input_y - 30)
+            self.app.draw_text("Number of Pretators:", 40, self.agent_input_x - 70, self.agent_input_y + 30)
+            self.app.draw_text("Reproduction probability:" , 40, self.agent_input_x - 18, self.agent_input_y + 90)
+            
+
             self.window()
 
     def check_input(self):
@@ -147,19 +159,30 @@ class ParametersMenu(Menu):
             self.app.current_menu = self.app.main_menu
             self.menu_running = False
 
-        elif self.app.UP_KEY or self.app.DOWN_KEY:
+        # elif self.app.UP_KEY or self.app.DOWN_KEY:
 
-            if self.state == "Ecosystem":
-                self.state = "Agents"
-                self.cursor_rect.midtop = (self.agents_x + self.offset, self.agents_y)
+        #     if self.state == "Ecosystem":
+        #         self.state = "Agents"
+        #         self.cursor_rect.midtop = (self.agents_x + self.offset, self.agents_y)
             
-            elif self.state == "Agents":
-                self.state = "Ecosystem"
-                self.cursor_rect.midtop = (self.ecosystem_x + self.offset, self.ecosystem_y)
+        #     elif self.state == "Agents":
+        #         self.state = "Ecosystem"
+        #         self.cursor_rect.midtop = (self.ecosystem_x + self.offset, self.ecosystem_y)
 
-        elif self.app.START_KEY:
-            #To create Ecosystem, Agents menus, put here the parameters input options. 
-            pass
+        # elif self.app.START_KEY:
+            
+        #     if self.state == "Agents":
+
+        #         self.app.display.fill(self.app.gray)
+        #         self.app.draw_text("Choose your parameters", 60, self.app.width / 2, 100)
+        #         self.app.draw_text("Number of Agents: ", 50, self.agent_input_x, self.agent_input_y)
+
+        #         self.window()
+            
+        #     else:
+        #         pass
+
+                
 
     
 
@@ -177,7 +200,7 @@ class RulesMenu(Menu):
 
             self.app.check_events()
 
-            if self.app.START_KEY or self.app.BACK_KEY:
+            if self.app.BACK_KEY:
                 self.app.current_menu = self.app.main_menu
                 self.menu_running = False
 
