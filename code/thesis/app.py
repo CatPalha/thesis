@@ -5,8 +5,6 @@ from menu import *
 from agents import Agent
 import os
 
-#agent = Agent()
-
 class App():
 
     def __init__(self):
@@ -14,10 +12,14 @@ class App():
         pygame.init()
         self.run, self.pause, self.playing = True, True, False
         self.UP_KEY, self.DOWN_KEY, self.START_KEY, self.BACK_KEY, self.SPACE_KEY = False, False, False, False, False
-        self.width, self.height, self.fps = 1000, 800, 60
+        self.width, self.height, self.fps = 1500, 1000, 60
         self.white, self.gray, self.black = (255, 255, 255), (200,200,200), (0, 0, 0)
-        #self.font_name = 'ARIAL'
+    
         self.font_name = pygame.font.get_default_font()
+        self.input_font = pygame.font.Font(self.font_name, 32)
+        self.user_input = "Teste"
+        self.input_surface = self.input_font.render(self.user_input, True, self.black)
+        self.input_pos = (0, 10)
 
         self.display = pygame.Surface(((self.width, self.height)))
         self.win = pygame.display.set_mode((self.width, self.height))
@@ -29,6 +31,8 @@ class App():
         self.parameters = ParametersMenu(self)
         self.rules = RulesMenu(self)
         self.current_menu = self.main_menu
+
+
 
     
     def draw_agent(self, image_name: str, agent_width: float, agent_height: float, x: float, y: float):
@@ -66,12 +70,10 @@ class App():
 
                 if event.key == pygame.K_UP:
                     self.UP_KEY = True
-            
     
     def check_events_pause(self):
 
         self.pause = True
-        #pygame.mixer.pause()
         
         while self.pause:
 
@@ -90,10 +92,8 @@ class App():
                     if event.key == pygame.K_BACKSPACE:
                         #TODO
                         pass
-                        
     
                     
-
 
 
     def reset_keys(self):
@@ -110,13 +110,15 @@ class App():
         text_rect.center = (x_text_pos, y_text_pos)
         self.display.blit(text_surface, text_rect)
 
+
+
     def pause_restart(self):
 
         self.check_events_pause()
 
 
 
-    def main_loop(self):
+    def main_loop(self, midges: list, mites: list):
         #Inside start option, the simulation itself
         self.clock.tick(self.fps)
 
@@ -155,19 +157,6 @@ class App():
             pygame.display.update()
             self.reset_keys()
 
-
-midges = []
-
-for i in range(3): 
-    midge = Agent()
-    midges.append(midge)
-
-
-mites = []
-
-for i in range(3): 
-    mite = Agent()
-    mites.append(mite)
 
 
 

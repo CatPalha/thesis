@@ -1,5 +1,5 @@
 import pygame
-#from pygame_functions import makeTextBox, textBoxInput
+
 
 class Menu():
     def __init__(self, app):
@@ -126,35 +126,29 @@ class ParametersMenu(Menu):
         #self.reproduction_x, self.reproduction_y = self.mid_width, self.mid_height + 40
         self.agent_input_x, self.agent_input_y = self.mid_width, self.mid_height - 100
 
-        # self.input_font = pygame.font.Font(self.app.font_name, 32)
-        # self.user_input = "TEST"
-        # self.input_surface = self.input_font.render(self.user_input, True, self.app.black)
-        # self.input_pos = (0, 10)
-
 
     def display_menu(self):
 
         self.menu_running = True
+
         while self.menu_running:
 
             self.app.check_events()
             self.check_input()
-            
-
-            #self.draw_cursor()
+            #self.app.input_box()
             self.app.display.fill(self.app.gray)
 
             #TODO: parameters user input 
-            
-            # self.app.win.blit(self.input_surface, self.input_pos)
-            # pygame.display.flip()
-            self.app.draw_text("", 20, 30, 10)
+
+            #self.input_box() 
+            #self.app.draw_text("teste", 20, 30, 10)
             self.app.draw_text("Insert the parameters", 60, self.app.width / 2, 100)
             self.app.draw_text("Number of Midges:", 40, self.agent_input_x - 90, self.agent_input_y - 30)
             self.app.draw_text("Number of Pretators:", 40, self.agent_input_x - 70, self.agent_input_y + 30)
             self.app.draw_text("Reproduction probability:" , 40, self.agent_input_x - 18, self.agent_input_y + 90)
 
             self.window()
+
 
     def check_input(self):
 
@@ -163,16 +157,8 @@ class ParametersMenu(Menu):
             self.app.current_menu = self.app.main_menu
             self.menu_running = False
 
-        if self.app.SPACE_KEY:
-            self.app.check_events_pause()
 
-    
-
-        
-
-                
-
-
+            
     
 class RulesMenu(Menu):
     def __init__(self, app):
@@ -202,6 +188,3 @@ class RulesMenu(Menu):
 
 
 
-
-
-    

@@ -2,12 +2,10 @@ import random
 
 class Agent():
 
-    def __init__(self):
-    #def __init__(self, app):
+    def __init__(self, app):
 
-        #self.app = app
-        self.width, self.height = 1000, 800
-        #self.width, self.height = self.app.width, self.app.height
+        self.app = app
+        self.width, self.height = self.app.width, self.app.height
         self.x = random.randrange(100, self.width - 100) 
         self.y = random.randrange(100, self.height - 100) 
         self.speed = random.randrange(2,5) 
@@ -61,8 +59,6 @@ class Agent():
 
         if self.y > self.height:
             self.y = 0
-
-
 
 
 
