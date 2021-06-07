@@ -1,14 +1,16 @@
 ### CONFIGURATION ###
+import random
 
 AGENTS = {
-            "Number of midges": 10,
+            "Number of midges": 1,
             "Number of predators": 5,
-            "Initial energy of agents": 100,
-            "Maximum of midges": None,
-            "Maximum of pretadors": None,
-            "Energy gain of eating": 5,
-            "Energy spent on reproduction": -15,
-            "Energy spent on moving": -10
+            "Midge Width": 200,
+            "Midge Height": 100,
+            "Mite Width": 200,
+            "Mite Height": 100,
+            "Speed": random.randrange(2,5),
+            "Initial energy of agents": 100
+
             
         }
 
@@ -23,10 +25,20 @@ REPRODUCTION = {
 
 
 ECOSYSTEM = {
-                "Window width": None,
-                "Window height": None,
+                "Width": 1000,
+                "Height": 800,
                 "Number of trees": 3,
                 "Number of water puddles": 1,
-                "Temperature": None
+                "x_tree_1": 0,
+                "y_tree_1": 0,
+                "x_tree_2": 300,
+                "y_tree_2": 200,
+                "x_water": 100,
+                "y_water": 100,
+                "Temperature": round(random.uniform(20, 26), 2),
+                "Rain": False,
+                "Wind": False,
+                "x_start": 700,
+                "y_start": 700
 
             }

@@ -20,12 +20,16 @@ for i in range(parameters.AGENTS["Number of predators"]):
 
 while app.run:
 
-    app.current_menu.display_menu()
+    #app.current_menu.display_menu()
     app.main_loop(midges, mites)
     
     
 if __name__ == "__main__":
     app.main_loop(midges, mites)
+
+    # if app.playing == False:
+    #     app.main_loop(midges, mites)
+
 
 
 
