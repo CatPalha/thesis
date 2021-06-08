@@ -68,7 +68,7 @@ class App:
 
         directions = {"SW":((-self.speed,-1), (1,self.speed)), "NW":((-self.speed,-1), (-self.speed,-1)), "NE":((1,self.speed), (-self.speed,-1)), "SE":((1,self.speed), (1,self.speed))}
         #possible directions
-        directionsName = ("SW", "NW", "NE", "SE") 
+        directionsName = ["SW", "NW", "NE", "SE"]
         
         #move about once every 5 frames
         if random.randrange(0,5) == 2:
@@ -115,7 +115,7 @@ class App:
         #((min x, max x)(min y, max y))
         directions = {"S":((-1,2), (1,self.speed)), "SW":((-self.speed,-1), (1,self.speed)), "W":((-self.speed,-1), (-1,2)), "NW":((-self.speed,-1), (-self.speed,-1)),"N":((-1,2), (-self.speed,-1)), "NE":((1,self.speed), (-self.speed,-1)), "E":((1,self.speed), (-1,2)), "SE":((1,self.speed), (1,self.speed))}
         #possible directions
-        directionsName = ("S", "SW", "W", "NW", "N", "NE", "E", "SE") 
+        directionsName = ["S", "SW", "W", "NW", "N", "NE", "E", "SE"]
         
         #move about once every 5 frames
         if random.randrange(0,5) == 2:

@@ -49,8 +49,6 @@ def draw_window():
 
 def main(midges, mites):
     #limit FPS
-    clock = pygame.time.Clock() 
-
 
     run = True
     while run:
