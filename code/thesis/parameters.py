@@ -3,7 +3,7 @@ import random
 
 AGENTS = {
             "Number of midges": 1,
-            "Number of predators": 5,
+            "Number of predators": 50,
             "Midge Width": 200,
             "Midge Height": 100,
             "Mite Width": 200,
