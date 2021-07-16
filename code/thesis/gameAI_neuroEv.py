@@ -4,6 +4,7 @@ import pygame
 import os
 import parameters
 import neat
+import math
 
 class Mite():
 
@@ -15,6 +16,7 @@ class Mite():
         self.speed = random.randrange(2,5) 
         self.move = [None, None] 
         self.direction = None 
+        self.mite_img = pygame.image.load(os.path.join("Assets", "mite.png"))
 
     
     def random_movement(self):
@@ -64,10 +66,7 @@ class Mite():
 
     def draw_mite(self):
         #Agent transformations: size and rotation
-        mite = pygame.image.load(os.path.join("Assets", "mite.png"))
-
-        mite = pygame.transform.scale(mite, (parameters.AGENTS["Mite Width"], parameters.AGENTS["Mite Height"]))
-
+        mite = pygame.transform.scale(self.mite_img, (parameters.AGENTS["Mite Width"], parameters.AGENTS["Mite Height"]))
         app.win.blit(mite, (self.x, self.y))
 
 class Midge():
@@ -80,7 +79,7 @@ class Midge():
         self.speed = random.randrange(2,5) 
         self.move = [None, None] 
         self.direction = None 
-        
+        self.midge_img = pygame.image.load(os.path.join("Assets", "midge.png"))
 
     def movement(self):
 
@@ -128,11 +127,9 @@ class Midge():
 
     def draw_midge(self):
         #Agent transformations: size and rotation
-        midge = pygame.image.load(os.path.join("Assets", "midge.png"))
-        
-        midge = pygame.transform.scale(midge, (parameters.AGENTS["Midge Width"], parameters.AGENTS["Midge Height"]))
+        midge = pygame.transform.scale(self.midge_img, (parameters.AGENTS["Midge Width"], parameters.AGENTS["Midge Height"]))
 
-        app.win.blit(midge, (self.x, self.y))
+        app.win.blit(midge,  (self.x, self.y))
 
 
 
@@ -143,13 +140,13 @@ class App:
 
         self.width, self.height = parameters.ECOSYSTEM["Width"], parameters.ECOSYSTEM["Height"]
         self. white = (255, 255, 255)
-        self.fps = 30
+        self.fps = 90
 
         self.win = pygame.display.set_mode((self.width, self.height))
         pygame.display.set_caption("Midge Ecosystem")
         self.clock = pygame.time.Clock() 
 
-        self.score = 470
+        self.score = parameters.ECOSYSTEM["Initial score"]
         self.inputs = [bin(0), bin(1), bin(2), bin(3), bin(4)]
         #self.outputs = [bin(5), bin(6), bin(7), bin(8), bin(9)]
 
@@ -172,9 +169,58 @@ class App:
    
 app = App()
 
+def remove(id):
+    midges.pop(id)
+    ge.pop(id)
+    nets.pop(id)
+
+def distance(x_pos, y_pos):
+    dx = x_pos[0] - y_pos[0]
+    dy = x_pos[1] - y_pos[1]
+
+    return math.sqrt(dx**2 + dy**2)
+
+def rules(midge, mite, ge):
+    ## REWARDS AND SCORE
+
+    if (midge.x == parameters.ECOSYSTEM["x_tree_1"] and midge.y == parameters.ECOSYSTEM["y_tree_1"]) and (midge.x == parameters.ECOSYSTEM["x_tree_2"] and midge.y == parameters.ECOSYSTEM["y_tree_2"]):
+        app.score += 20
+        for g in ge:
+            ge[i].fitness += 0.5
+        
+
+    if midge.x < -100 or midge.x > app.width:
+        app.score -= 5
+        for g in ge:
+            ge[i].fitness -= 0.2
+        
+
+    if (midge.x >= mite.x - 10 and midge.x <= mite.x + 10) and (midge.y >= mite.y - 10 and midge.y <= mite.y + 10):
+
+        app.score -= -15
+        for g in ge:
+            ge[i].fitness -= 0.3
+        
+
+    if app.score == 0:
+        #It's dead
+        ge[i].fitness -= 0.1
+        midges.remove(midge)
+        remove(i)
+
+        app.run = False
+
+    else:
+        #survives
+        ge[i].fitness += 0.01
+
+
+    return ge[i].fitness, app.score
+
 def eval_genomes(genomes, config):
     #Besides running the game, evaluates genomes, meaning the fitnesses.
-
+    global midges, mites, nets, ge
+    
     mites = []
 
     for i in range(parameters.AGENTS["Number of predators"]): 
@@ -188,12 +234,14 @@ def eval_genomes(genomes, config):
     midges = []
 
     for g_id, g in genomes:
+
+        midges.append(Midge(app))
+        ge.append(g)
+
         net = neat.nn.FeedForwardNetwork.create(g, config)
         nets.append(net)
-        midge = Midge(app)
-        midges.append(midge)
+
         g.fitness = 0
-        ge.append(g)
 
 
     while app.run:
@@ -219,50 +267,46 @@ def eval_genomes(genomes, config):
         ## MIDGES
         for i, midge in enumerate(midges): 
             midge.movement()
-            ge[i].fitness += 0.1
+            ge[i].fitness += 0.01
             midge.draw_midge()
 
+            
 
         ## REWARDS AND SCORE
 
-        # if (midge.x >= parameters.ECOSYSTEM["x_tree_1"] - 20 and midge.x <= parameters.ECOSYSTEM["x_tree_1"] + 20) and (midge.y <= parameters.ECOSYSTEM["y_tree_1"] + 20 and midge.y <= parameters.ECOSYSTEM["y_tree_1"] - 20):
-        #     pass
+            if (midge.x == parameters.ECOSYSTEM["x_tree_1"] and midge.y == parameters.ECOSYSTEM["y_tree_1"]) and (midge.x == parameters.ECOSYSTEM["x_tree_2"] and midge.y == parameters.ECOSYSTEM["y_tree_2"]):
+                app.score += 20
+                for g in ge:
+                    ge[i].fitness += 0.5
+                
 
+            if midge.x < -100 or midge.x > app.width:
+                app.score -= 5
+                for g in ge:
+                    ge[i].fitness -= 0.1
+                
 
-        if (midge.x == parameters.ECOSYSTEM["x_tree_1"] and midge.y == parameters.ECOSYSTEM["y_tree_1"]) or (midge.x == parameters.ECOSYSTEM["x_tree_2"] and midge.y == parameters.ECOSYSTEM["y_tree_2"]):
-            app.score += 20
-            for g in ge:
-                ge[i].fitness += 5
+            if (midge.x >= mite.x - 10 and midge.x <= mite.x + 10) and (midge.y >= mite.y - 10 and midge.y <= mite.y + 10):
             
+                app.score -= -15
+                for g in ge:
+                    ge[i].fitness -= 0.3
+                
 
-        if midge.x < -100 or midge.x > app.width:
-            app.score -= 5
-            for g in ge:
-                ge[i].fitness -= 1
-            
+            if app.score == 0:
+                #It's dead
+                ge[i].fitness -= 0.2
+                #midges.remove(midge)
+                remove(i)
 
-        if midge.x == mite.x and midge.y == mite.y:
-            app.score -= -15
-            for g in ge:
-                ge[i].fitness -= 2
-            
+                app.run = False
 
-        if app.score == 0:
-            #It's dead
-            ge[i].fitness -= 1
-            midges.remove(midge)
-            midges.pop(i)
-            nets.pop(i)
-            ge.pop(i)
-
-            app.run = False
-        else:
-            #survives
-            ge[i].fitness += 1
+            else:
+                #survives
+                ge[i].fitness += 0.01
+                
 
 
-        # print("Score: ", self.score, " Reward: ", self.reward)
-        # print("Midge x: ", midge.x, "Midge y", midge.y)
         app.clock.tick(app.fps)
         #update display
         pygame.display.update() 
@@ -277,17 +321,16 @@ def run(config_path):
     ##Population
     pop = neat.Population(config)
     
-
     ## Stats Report output
     pop.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
     pop.add_reporter(stats)
 
     ##Run a fitness function for 50 generations
-    winner = pop.run(eval_genomes, 50)
+    winner = pop.run(eval_genomes, 3)
 
-    for input in app.inputs:
-        output = winner.activate(input)
+    # for input in app.inputs:
+    #     output = winner.activate(input)
 
     # show final stats
     print('\nBest genome:\n{!s}'.format(winner))

@@ -3,13 +3,12 @@ import random
 
 AGENTS = {
             "Number of midges": 1,
-            "Number of predators": 50,
+            "Number of predators": 5,
             "Midge Width": 200,
             "Midge Height": 100,
             "Mite Width": 200,
             "Mite Height": 100,
             "Speed": random.randrange(2,5),
-            "Initial energy of agents": 100
 
             
         }
@@ -38,7 +37,6 @@ ECOSYSTEM = {
                 "Temperature": round(random.uniform(20, 26), 2),
                 "Rain": False,
                 "Wind": False,
-                "x_start": 700,
-                "y_start": 700
+                "Initial score": 470
 
             }

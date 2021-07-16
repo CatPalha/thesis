@@ -4,8 +4,10 @@ import pygame
 import os
 import parameters
 
+
 class Midge():
-    def __init__(self):
+    def __init__(self, app):
+        self.app = app
         self.x = random.randrange(200, parameters.ECOSYSTEM["Width"] - 200) 
         self.y = random.randrange(200, parameters.ECOSYSTEM["Height"] - 200) 
         self.speed = random.randrange(2,5) 
@@ -18,7 +20,7 @@ class Midge():
         
         midge = pygame.transform.scale(midge, (parameters.AGENTS["Midge Width"], parameters.AGENTS["Midge Height"]))
 
-        self.win.blit(midge, (self.x, self.y))
+        app.win.blit(midge, (self.x, self.y))
 
     def move(self):
 
@@ -67,7 +69,8 @@ class Midge():
 
 class Mite():
 
-    def __init__(self):
+    def __init__(self, app):
+        self.app = app
         self.x = random.randrange(200, parameters.ECOSYSTEM["Width"] - 200) 
         self.y = random.randrange(200, parameters.ECOSYSTEM["Height"] - 200) 
         self.speed = random.randrange(2,5) 
@@ -81,7 +84,7 @@ class Mite():
 
         mite = pygame.transform.scale(mite, (parameters.AGENTS["Mite Width"], parameters.AGENTS["Mite Height"]))
 
-        self.win.blit(mite, (self.x, self.y))
+        app.win.blit(mite, (self.x, self.y))
 
 
     def move(self):
@@ -165,7 +168,7 @@ class App:
 
 
 
-    def main(self, midges, mites):
+    def main(self, midges: list, mites: list):
 
         while self.run:
 
@@ -224,13 +227,13 @@ if __name__ == "__main__":
     midges = []
 
     for i in range(parameters.AGENTS["Number of midges"]): 
-        midge = Midge()
+        midge = Midge(app)
         midges.append(midge)
 
     mites = []
 
     for i in range(parameters.AGENTS["Number of predators"]): 
-        mite = Mite()
+        mite = Mite(app)
         mites.append(mite)
 
    
