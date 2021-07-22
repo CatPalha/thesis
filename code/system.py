@@ -2,92 +2,150 @@
 import random
 import pygame
 import os
-from tkinter import Tk, messagebox
-
-tk = Tk()
-tk.wm_withdraw()
-
-#Needed to write on window
-#pygame.init()
-
-width, height = 1000, 800
-white = (255, 255, 255)
-gray = (200,200,200)
-black = (0, 0, 0)
-fps = 60
-
-win = pygame.display.set_mode((width, height))
-
-pygame.display.set_caption("Midge Ecosystem")
-
-def draw_window(name, ):
-    """Draw the windows and static agents"""
-
-    for item in folder_name:
-
-    win.fill(white)
-    #Place in the window where the midge will be drawn
-    agent_name = pygame.image.load(os.pathjoin("folder_name", "item_name")
-    # cocoa_tree_1 = pygame.image.load(os.path.join("Assets", "cocoa_tree.png"))
-    # cocoa_tree_2 = pygame.image.load(os.path.join("Assets", "cocoa_tree.png"))
-    # cocoa_tree_3 = pygame.image.load(os.path.join("Assets", "cocoa_tree.png"))
-    # cocoa_tree_4 = pygame.image.load(os.path.join("Assets", "cocoa_tree.png"))
-    # cocoa_tree_5 = pygame.image.load(os.path.join("Assets", "cocoa_tree.png"))
-    # cocoa_tree_6 = pygame.image.load(os.path.join("Assets", "cocoa_tree.png"))
-
-    # water_1 = pygame.image.load(os.path.join("Assets", "water.png"))
-    # water_1 = pygame.transform.scale(water_1, (60, 60))
-
-    # #Static agents
-    win.blit(item_name, ((x, y)))
-    # win.blit(cocoa_tree_1, ((0,0)))
-    # win.blit(cocoa_tree_2, ((300,200)))
-    # win.blit(cocoa_tree_3, ((400,200)))
-    # win.blit(cocoa_tree_4, ((850,550)))
-    # win.blit(cocoa_tree_5, ((750,550)))
-    # win.blit(cocoa_tree_6, ((100,0)))
+import parameters
 
 
 
-class Agent:
+class App:
+
     def __init__(self):
-        self.x = random.randrange(20, width - 20) 
-        self.y = random.randrange(20, height - 20) 
+
+        self.width, self.height = parameters.ECOSYSTEM["Width"], parameters.ECOSYSTEM["Height"]
+        self.white = (255, 255, 255)
+        self.fps = 15
+        self.clock = pygame.time.Clock() 
+
+
+        self.win = pygame.display.set_mode((self.width, self.height))
+        pygame.display.set_caption("Midge Ecosystem")
+
+        self.run = True
+        self.score = 470
+        self.reward = 0
+   
+
+    def draw_window(self):
+        """Draw the windows and static agents"""
+
+
+        self.win.fill(self.white)
+
+        cocoa_tree = pygame.image.load(os.path.join("Assets", "cocoa_tree.png"))
+        
+        water = pygame.image.load(os.path.join("Assets", "water.png"))
+        water = pygame.transform.scale(water, (60, 60))
+
+        self.win.blit(cocoa_tree, ((parameters.ECOSYSTEM["x_tree_1"], parameters.ECOSYSTEM["y_tree_1"])))
+        self.win.blit(cocoa_tree, ((parameters.ECOSYSTEM["x_tree_2"], parameters.ECOSYSTEM["y_tree_2"])))
+        self.win.blit(water, (parameters.ECOSYSTEM["x_water"], parameters.ECOSYSTEM["y_water"]))
+
+    
+
+    def main(self, midges, mites):
+     
+        while self.run:
+            self.clock.tick(self.fps)
+
+            for event in pygame.event.get():
+                #If the user press X, quit the program
+                if event.type == pygame.QUIT: 
+                    self.run = False
+
+
+            self.draw_window()
+
+            for mite in mites:
+
+                mite.movement()
+                mite.borders()
+                mite.draw_mite()
+
+            for i, midge in enumerate(midges):
+                midge.movement()
+        
+                
+
+                ## REWARDS AND SCORE
+                ##FOOD
+                for midge in midges:
+                    if 340 <= midge.x <= 400:
+                        if 142 <= midge.y == 447:
+                            self.score += 1
+                            self.reward += 1
+
+                    if 39 <= midge.x <= 97:
+                        if 150 <= midge.y <= 155:
+                            self.score += 1
+                            self.reward += 1
+                
+                    ## RESTING PLACE
+                    if 82 <= midge.x <= 101:
+                        if 180 <= midge.y <= 185:
+                            self.score += 0.5
+                            self.reward += 0.5 
+
+                    ## END OF THE GAME
+                    if self.score <= 0:
+                        self.reward -= 2
+                        print("GAME OVER")
+                        self.run = False
+
+                    if self.score > 470:
+                        self.score = 470
+                    
+                    #If it's survives gains a reward
+                    #In each iteration it loses score, bc it loses energy
+                    if self.score > 0:
+                        self.score -= 0.01
+                        self.reward += 0.01
+
+
+
+                    ## PREDATORS
+                    for mite in mites:
+
+                        if mite.x - 4 <= midge.x <= mite.x + 4:
+                            if mite.y - 4 <= midge.y <= mite.y + 4:
+                                self.score -= 10
+                                self.reward -= 1
+            
+                    midge.borders()
+                    midge.draw_midge()
+
+
+
+                print("Score: ", self.score, " Reward: ", self.reward)
+                print("Midge x: ", midge.x, "Midge y", midge.y)       
+
+
+            pygame.display.update() 
+        pygame.quit()
+
+
+class Midge:
+
+    def __init__(self, app):  
+
+        self.app = app
+        self.x = random.randrange(200, parameters.ECOSYSTEM["Width"] - 200) 
+        self.y = random.randrange(200, parameters.ECOSYSTEM["Height"] - 200) 
         self.speed = random.randrange(2,5) 
         self.move = [None, None] 
         self.direction = None 
+        self.vel = 1
 
     def draw_midge(self):
-        #Agent transformations: size and rotation
+      
         midge = pygame.image.load(os.path.join("Assets", "midge.png"))
         
-        midge_width, midge_height = 350, 150
-        midge = pygame.transform.scale(midge, (midge_width, midge_height))
+        midge = pygame.transform.scale(midge, (parameters.AGENTS["Midge Width"], parameters.AGENTS["Midge Height"]))
 
-        win.blit(midge, (self.x, self.y))
-        
+        app.win.blit(midge, (self.x, self.y))
+    
+    def movement(self):
 
-    def draw_mite(self):
-        #Agent transformations: size and rotation
-        mite = pygame.image.load(os.path.join("Assets", "mite.png"))
-
-        mite_width, mite_height = 400, 200
-        mite = pygame.transform.scale(mite, (mite_width, mite_height))
-
-        win.blit(mite, (self.x, self.y))
-
-    def draw_tree(self):
-
-        cocoa_tree = pygame.image.load(os.path.join("Assets", "cocoa_tree.png"))
-
-        win.blit(cocoa_tree, ((self.x, self.y)))
-        
-
-    def random_movement(self):
-
-        #((min x, max x)(min y, max y))
         directions = {"S":((-1,2), (1,self.speed)), "SW":((-self.speed,-1), (1,self.speed)), "W":((-self.speed,-1), (-1,2)), "NW":((-self.speed,-1), (-self.speed,-1)),"N":((-1,2), (-self.speed,-1)), "NE":((1,self.speed), (-self.speed,-1)), "E":((1,self.speed), (-1,2)), "SE":((1,self.speed), (1,self.speed))}
-        #possible directions
+
         directionsName = ("S", "SW", "W", "NW", "N", "NE", "E", "SE") 
         
         #move about once every 5 frames
@@ -110,20 +168,7 @@ class Agent:
             #change relative y to a random number between min y and max y 
             self.move[1] = random.randrange(directions[self.direction][1][0], directions[self.direction][1][1])
 
-        # #Setting the borders, round world
-        if self.x < 0 or self.x > width or self.y < 0 or self.y > height: 
-            if self.x < 0:
-                self.x = 0
-
-            if self.x > width:
-                self.x = width
-
-            if self.y < 0:
-                self.y = height
-
-            if self.y > height:
-                self.y = 0
-
+        
             smallOffset = random.random() 
             self.move[0] = random.randrange(directions[self.direction][0][0], directions[self.direction][0][1]) + smallOffset
             self.move[1] = random.randrange(directions[self.direction][1][0], directions[self.direction][1][1]) + smallOffset
@@ -133,227 +178,144 @@ class Agent:
             self.x += self.move[0]
             self.y += self.move[1]
 
-    # def borders(self):
-    #     """Ensures that the world is round"""
-    #     #if self.x < 0 or self.x > width or self.y < 0 or self.y > height:
+    # def movement(self):
 
-    #     if self.x < 0:
-    #         self.x = 0
+    #     keys = pygame.key.get_pressed()
+        
+    #     # if left arrow key is pressed
+    #     if keys[pygame.K_LEFT]:
+            
+    #         # decrement in x co-ordinate
+    #         self.x -= self.vel
+            
+    #     # if left arrow key is pressed
+    #     if keys[pygame.K_RIGHT]:
+            
+    #         # increment in x co-ordinate
+    #         self.x += self.vel
+            
+    #     # if left arrow key is pressed   
+    #     if keys[pygame.K_UP]:
+            
+    #         # decrement in y co-ordinate
+    #         self.y -= self.vel
+            
+    #     # if left arrow key is pressed   
+    #     if keys[pygame.K_DOWN]:
+    #         # increment in y co-ordinate
+    #         self.y += self.vel
+         
 
-    #     if self.x > width:
-    #         self.x = width
+    def borders(self):
+        """Ensures that the world is round"""
 
-    #     if self.y < 0:
-    #         self.y = height
+        if self.y < -35:
+            self.y = 751
 
-    #     if self.y > height:
-    #         self.y = 0
+        if self.y > 751:
+            self.y = -35
 
-
-
-
-def pause_restart():
-    """Press to space key to pause and restart the game"""
-    loop = True
-
-    while loop:
-        for event in pygame.event.get():
-
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                quit()
-
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-                loop = False
-
-#             # if event.type == pygame.MOUSEBUTTONDOWN:
-#             #     # Set the x, y postions of the mouse click
-#             #     x_cursor, y_cursor = event.pos
-#             #     print(x_cursor)
-#             #     print(y_cursor)
-
-                
-#             #     messagebox.showinfo("Midge info", "Generation number: 3 \n Reproduction: False")
-
-
-def intro():
-
-    intro = True
-
-    while intro:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                quit()
+        if self.x < -91:
+            self.x = 889
+        
+        if self.x > 889:
+            self.x = -91
     
-    win.fill(gray)
 
-    title_menu = pygame.font.Font('verdana', 20)
-    textImg, textRect = text_object("Main Menu", title_menu)
-    textRect.center = (width / 2, height - 5)
-    win.blit(textImg, textRect)
-    pygame.display.update()
+class Mite:
 
+    def __init__(self, app):
+
+        self.app = app
+        self.x = random.randrange(200, parameters.ECOSYSTEM["Width"] - 200) 
+        self.y = random.randrange(200, parameters.ECOSYSTEM["Height"] - 200) 
+        self.speed = random.randrange(2,5) 
+        self.move = [None, None] 
+        self.direction = None 
+    
+        
+    def draw_mite(self):
+        
+        mite = pygame.image.load(os.path.join("Assets", "mite.png"))
+
+        mite = pygame.transform.scale(mite, (parameters.AGENTS["Mite Width"], parameters.AGENTS["Mite Height"]))
+
+        app.win.blit(mite, (self.x, self.y))
+        
+
+    def movement(self):
+
+        directions = {"S":((-1,2), (1,self.speed)), "SW":((-self.speed,-1), (1,self.speed)), "W":((-self.speed,-1), (-1,2)), "NW":((-self.speed,-1), (-self.speed,-1)),"N":((-1,2), (-self.speed,-1)), "NE":((1,self.speed), (-self.speed,-1)), "E":((1,self.speed), (-1,2)), "SE":((1,self.speed), (1,self.speed))}
+
+        directionsName = ("S", "SW", "W", "NW", "N", "NE", "E", "SE") 
+        
+        #move about once every 5 frames
+        if random.randrange(0,5) == 2:
+            #if no direction is set, set a random one 
+            if self.direction == None:
+                self.direction = random.choice(directionsName)
+            else:
+                #get the index of direction in directions list
+                a = directionsName.index(self.direction)
+                #set the direction to be the same, or one next to the current direction
+                b = random.randrange(a - 1,a + 2)
+                #if direction index is outside the list, move back to the start
+                if b > len(directionsName) - 1: 
+                    b = 0
+                self.direction = directionsName[b]
+
+            #change relative x to a random number between min x and max x
+            self.move[0] = random.randrange(directions[self.direction][0][0], directions[self.direction][0][1])
+            #change relative y to a random number between min y and max y 
+            self.move[1] = random.randrange(directions[self.direction][1][0], directions[self.direction][1][1])
 
         
-midges = []
-
-for i in range(1): 
-    midge = Agent()
-    midges.append(midge)
-
-mites = []
-
-for i in range(1): 
-    mite = Agent()
-    mites.append(mite)
-
-def main():
-    #limit FPS
-    clock = pygame.time.Clock() 
-
-
-
-    run = True
-    while run:
-        clock.tick(fps)
-
-        for event in pygame.event.get():
-            #If the user pressi X, quit the program
-            if event.type == pygame.QUIT: 
-                run = False
-            
-            #If the user press space bar, the program pauses, if presses again the program restarts
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-                pause_restart()
-
-            # if event.type == pygame.MOUSEBUTTONDOWN:
-            #     # Set the x, y postions of the mouse click
-            #     x_cursor, y_cursor = event.pos
-            
-            #     # print(x_cursor)
-            #     # print(y_cursor)
-
-                
-    #         #     messagebox.showinfo("Midge info", "Generation number: 3 \n Reproduction: False")
-
-        #intro()
-        draw_window()
-
-
-        for midge in midges: #update all midges agents
-            midge.random_movement()
-            #midge.borders()
-            midge.draw_midge()
-
+            smallOffset = random.random() 
+            self.move[0] = random.randrange(directions[self.direction][0][0], directions[self.direction][0][1]) + smallOffset
+            self.move[1] = random.randrange(directions[self.direction][1][0], directions[self.direction][1][1]) + smallOffset
         
-        for mite in mites: #update all mites agents
-            mite.random_movement()
-            #mite.borders()
-            mite.draw_mite()
+        #add the relative coordinates to the cells coordinates
+        if self.move[0] != None: 
+            self.x += self.move[0]
+            self.y += self.move[1]
 
-        pygame.display.update() #update display
+    def borders(self):
+        """Ensures that the world is round"""
+        #Later, if the agents try to leave the world they will lose points. 
 
-    pygame.quit()
-    
+        if self.y < -35:
+            self.y = 751
+
+        if self.y > 751:
+            self.y = -35
+
+        if self.x < -91:
+            self.x = 889
+        
+        if self.x > 889:
+            self.x = -91
+
 
 
 #This guarantees the function main only runs when this files runs, if I want to run from somewhere else I need to delete this
 if __name__ == "__main__":
-    main()
 
+    app = App()
 
+    mites = []
 
-"""
-class Button():
-    def __init__(self, color, x, y, width, height, text = ''):
-        self.color = color
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
-        self.text = text
-
-    def draw_button(self, win, outline = None):
-        #Call this method to draw the button on the screen
-        if outline:
-            pygame.draw.rect(win, outline, (self.x - 2,self.y - 2,self.width + 4,self.height + 4), 0)
-            
-        pygame.draw.rect(win, self.color, (self.x, self.y, self.width, self.height), 0)
-        
-        if self.text != '':
-            font = pygame.font.SysFont('verdana', 20)
-            text = font.render(self.text, 1, black)
-            win.blit(text, (self.x + (self.width / 2 - text.get_width() / 2), self.y + (self.height / 2 - text.get_height() / 2)))
-
-    def isOver(self, pos):
-        #Pos is the mouse position or a tuple of (x,y) coordinates
-        if pos[0] > self.x and pos[0] < self.x + self.width:
-            if pos[1] > self.y and pos[1] < self.y + self.height:
-                return True
-          
-        return False
-
-#Start Button
-restart_button = Button(gray, 930, 0, 70, 40, 'Restart')
-pause_button = Button(gray, 850, 0, 70, 40, 'Pause')
-
-class Agent:
-    #Posso ter varios agentes, é só defenir instanciar uma classe para cada agente.
-    def ___init___(self, width, height, health = 100):
-        self.width = width
-        self.height = height
-        self.health = health
-        self.agent_img = None
-
-        # self.positions = [((width / 2), (height / 2))]
-        # self.direction = random.choice([up, down, left, rigth])
-
-    def draw_agent(self, window):
-        #It can be a midge, a mite or a cocoa tree.
-        window.blit(self.ship_img, (self.width, self.height))
-
-    def get_width(self):
-        return self.agent_img.get_width()
+    for i in range(parameters.AGENTS["Number of predators"]): 
+        mite = Mite(app)
+        mites.append(mite)
     
-    def height(self):
-        return self.agent_img.height()
 
-class Midge(Agent):
+    midges = [] 
 
-    def __init__(self, width, height, health = 100):
-        super().__init__(width, height, health)
-        self.ship_img = midge
-        self.max_health = health
-
-    def midge_movement(self, velocity):
-        self.height += velocity
-
-class Predator(Agent):
-
-    def __init__(self, width, height, health = 100):
-        super().__init__(width, height, health)
-        self.ship_img = mite
-        self.max_health = health
+    for i in range(parameters.AGENTS["Number of midges"]): 
+        midge = Midge(app)
+        midges.append(midge)
+    
+    app.main(midges, mites)
 
 
 
-def moviment():
-    pass
-
-def reset(self):
-    pass
-
-def reset(self):
-    self,positions = [((width / 2), (height / 2))]
-    self.direction = random.choice([up, down, left, rigth])
-
-class Food(object):
-
-    def ___init___(self):
-        pass
-
-    def cacoa_tree(self, surface):
-        pass
-
-"""
