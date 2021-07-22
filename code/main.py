@@ -1,38 +1,56 @@
-from app import App
-from agents import Agent
+#! /usr/bin/env python3
+import random
 
-app = App()
+import core
+import bioagents
+import visual
 
-midges = []
+def test_01():
+    env = core.Environment()
+    for i in range(5):
+        ag = core.RandomWalker(env,
+            min_x=8, max_x=env.width-8,
+            min_y=8, max_y=env.height-8)    
+        cycle = core.BasicLifeCycle(100, 300, 500, 300)
+        ag.set_lifecycle(cycle)
 
-for i in range(3): 
-    midge = Agent()
-    midges.append(midge)
+    for t in range(20):
+        env.step()
+        print(env)
 
+def test_02():
+    env = core.Environment()
+    for i in range(50):
+        ag = core.RandomWalker(env,
+            min_x=8, max_x=env.width-8,
+            min_y=8, max_y=env.height-8)    
+        cycle = core.BasicLifeCycle(100, 300, 500, 300)
+        ag.set_lifecycle(cycle)
 
-mites = []
+    vis = visual.Visual(env, env.width, env.height)
+    vis.go()
 
-for i in range(3): 
-    mite = Agent()
-    mites.append(mite)
+def test_03():
+    env = core.Environment()
+    cycle = core.BasicLifeCycle(100, 300, 500, 300)
 
-for midge in midges:
-
-    midge.random_movement()
-    midge.borders()
-    app.draw_agent("midge.png", 350, 150, midge.x, midge.y)
-
-for mite in mites:
-
-    mite.random_movement()
-    mite.borders()
-    app.draw_agent("mite.png", 400, 200, mite.x, mite.y)
-
-while app.run:
-
-    app.current_menu.display_menu()
-    app.main_loop()
+    for i in range(5):
+        ag = core.RandomWalker(env)    
+        ag.set_lifecycle(cycle)
     
-    
+    for i in range(20):
+        case = random.randint(0,2)
+        if case == 0:
+            ag = bioagents.Tree(env)    
+        elif case == 1:
+            ag = bioagents.Mite(env)
+        else:
+            ag = bioagents.Midge(env)
+
+    vis = visual.Visual(env, env.width, env.height)
+    vis.go()
+
+
 if __name__ == "__main__":
-    app.main_loop()
+    random.seed()
+    test_03()
