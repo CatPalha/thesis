@@ -34,6 +34,9 @@ def test_03():
     env = core.Environment()
     cycle = core.BasicLifeCycle(100, 300, 500, 300)
 
+    env.year = bioagents.Year(env)
+    env.day = bioagents.Day(env)
+
     for i in range(5):
         ag = core.RandomWalker(env)    
         ag.set_lifecycle(cycle)
@@ -47,7 +50,7 @@ def test_03():
         else:
             ag = bioagents.Midge(env)
 
-    vis = visual.Visual(env, env.width, env.height)
+    vis = visual.Visual(env, env.width, env.height, fps=30)
     vis.go()
 
 

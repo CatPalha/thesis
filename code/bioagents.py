@@ -1,12 +1,12 @@
 import random
 import math
 
-from core import Agent, BasicLifeCycle
+from core import Agent, MobileAgent, BasicLifeCycle
 
 SIZE, SENSOR, PHERHORMONE = GENOTYPE = range(3)
 LOW, MEDIUM, HIGH = GENE_RANGE = range(3)
 
-DAY_PARTS = 3 # 1 STEP = 8 HOURS
+DAY_PARTS = 8 # 1 STEP = 8 HOURS
 # EGG, LARVAE, PUPAE, ADULT
 MIDGE_LIFECYCLE = BasicLifeCycle(
     3 * DAY_PARTS,  # EGG
@@ -15,10 +15,17 @@ MIDGE_LIFECYCLE = BasicLifeCycle(
     8 * DAY_PARTS   # ADULT
 )
 
-class Midge(Agent):
-    def __init__(self, env, gene=None, xy=None, radius=8, mass=1, energy=100.0, max_vel=None):
-        Agent.__init__(self, env, xy=None, radius=8, mass=1, energy=100.0, max_vel=None)
-        self.lifecycle = MIDGE_LIFECYCLE
+class Midge(MobileAgent):
+    def __init__(   self, env, 
+                    lifecycle=MIDGE_LIFECYCLE,
+                    gene=None, 
+                    xy=None, 
+                    radius=8, 
+                    mass=1, 
+                    energy=100.0, 
+                    max_vel=None):
+        MobileAgent.__init__(self, env, lifecycle=lifecycle, xy=None, radius=8, mass=1, energy=100.0, max_vel=None)
+
         self.sensor_range = 4 * self.radius
         if gene is None:
             self.gene = list()
@@ -28,7 +35,7 @@ class Midge(Agent):
             self.gene = gene
 
     def behave(self):
-        Agent.behave(self)
+        MobileAgent.behave(self)
 
         self.acc = 1.0
 
@@ -58,14 +65,13 @@ class Midge(Agent):
 MITE_LIFECYCLE = BasicLifeCycle(
     360 * DAY_PARTS
 )
-class Mite(Agent):
-    def __init__(self, env):
-        Agent.__init__(self, env, radius=8)
-        self.lifecycle = MITE_LIFECYCLE
+class Mite(MobileAgent):
+    def __init__(self, env, lifecycle=MITE_LIFECYCLE):
+        MobileAgent.__init__(self, env, lifecycle=lifecycle, radius=8)
         self.sensor_range = 2 * self.radius
 
     def behave(self):
-        Agent.behave(self)
+        MobileAgent.behave(self)
         detected = self.env.scan_at(self.x, self.y, self.sensor_range) - {self.id}
         detected = self.env.filter(detected, lambda ag: isinstance(ag, Midge))
         if len(detected) > 0:
@@ -82,12 +88,39 @@ class Mite(Agent):
 
 
 # BLOOMING, NOT_BLOOMING
-TREE_LIVECYCLE = BasicLifeCycle(
+TREE_LIFECYCLE = BasicLifeCycle(
     120 * DAY_PARTS,
     240 * DAY_PARTS
 )
 
 class Tree(Agent):
-    def __init__(self, env, xy=None):
-        Agent.__init__(self, env, xy=xy, radius=16, mass=1000, energy=100.0, max_vel=0)
-        self.lifecycle = TREE_LIVECYCLE
+    def __init__(self, env, lifecycle=TREE_LIFECYCLE, xy=None, radius=16):
+        self.radius = radius
+        if xy is None:
+            self.x, self.y = env.get_random_position(radius)
+        else:
+            self.x, self.y = xy
+
+        Agent.__init__(self, env, lifecycle=lifecycle)
+        
+# DAWN, DAY, TWILIGHT, NIGHT
+DAY_CYCLE = BasicLifeCycle(
+    2,  # DAWN
+    2,  # DAY
+    2,  # TWILIGHT
+    2   # NIGHT
+)
+class Day(Agent):
+    def __init__(self, env, lifecycle=DAY_CYCLE):
+        Agent.__init__(self, env, lifecycle=lifecycle)
+
+# SPRING, SUMMER, FALL, WINTER
+YEAR_CYCLE = BasicLifeCycle(
+    90 * DAY_PARTS,  # SPRING
+    90 * DAY_PARTS,  # SUMMER
+    90 * DAY_PARTS,  # FALL
+    90 * DAY_PARTS,  # WINTER
+)
+class Year(Agent):
+    def __init__(self, env, lifecycle=YEAR_CYCLE):
+        Agent.__init__(self, env, lifecycle=lifecycle)

@@ -38,23 +38,52 @@ class BasicLifeCycle(LifeCycle):
         else:
             pass
 
+class Agent:
+    def __init__(self, env, lifecycle=None, energy=1.0):        
+        self.age = 0
+        self.energy = energy
+        self.lifecycle = lifecycle
+
+        self.env = env
+        self.id = env.add_agent(self)
+        
+    def physics(self):
+        pass
+
+    def metabolism(self):
+        self.age += 1
+        self.lifecycle.step()
+
+    def set_lifecycle(self, lf):
+        self.lifecycle = lf
+
+    def do(self, action, parameters):
+        action(*parameters)
+
+    def sense(self, sensor, parameters):
+        pass
+
+    def behave(self):
+        pass
+    def step(self):
+        if self.energy > 0 and self.env is not None and self.lifecycle is not None:
+            self.metabolism()
+            self.behave()
+            self.physics()
+
+    def __repr__(self):
+        return f"[{self.id} age: {self.age} stage: {self.lifecycle.current()} ]"
+
 EAST = (1,0)
 WEST = (-1, 0)
 NORTH = (0, -1)
 SOUTH = (0, 1)
 DIRECTIONS = [NORTH, EAST, SOUTH, WEST]
 
-class Agent:
-    def __init__(self, env, xy=None, radius=8, mass=1, energy=100.0, max_vel=None):
-
+class MobileAgent(Agent):
+    def __init__(self, env, lifecycle=None, xy=None, radius=8, mass=1, energy=100.0, max_vel=None):
         if xy is None:
-            retries = 100
-            x = random.randrange(radius, env.width - radius)
-            y = random.randrange(radius, env.height - radius)
-            while retries > 0 and len(env.scan_at(x,y, radius)) > 0:
-                x = random.randrange(radius, env.width - radius)
-                y = random.randrange(radius, env.height - radius)
-                retries -= 1
+            x,y = env.get_random_position(radius)
         else:
             x,y = xy
         self.x = x
@@ -73,15 +102,10 @@ class Agent:
             self.max_vel = self.radius
         else:
             self.max_vel = max_vel
-        
-        self.age = 0
 
         self.energy = energy
 
-        self.lifecycle = None
-
-        self.env = env
-        self.id = env.add_agent(self)
+        Agent.__init__(self, env, lifecycle)
         
     def physics(self):
         self.vel += self.acc
@@ -97,43 +121,21 @@ class Agent:
             self.x += d[0]
             self.y += d[1]
 
-    def metabolism(self):
-        self.age += 1
-        self.lifecycle.step()
-
-    def set_lifecycle(self, lf):
-        self.lifecycle = lf
-
-    def do(self, action, parameters):
-        action(*parameters)
-
-    def sense(self, sensor, parameters):
-        pass
-
     def behave(self):
         pass
 
     def head_to(self, x, y):
         self.heading = math.atan2(y, x)
 
-    def step(self):
-        if self.energy > 0 and self.env is not None and self.lifecycle is not None:
-            self.metabolism()
-            self.behave()
-            self.physics()
-
     def __repr__(self):
         return f"[{self.id} age: {self.age} energy: {self.energy} stage: {self.lifecycle.current()} ]"
 
 
-class RandomWalker(Agent):
-    # def __init__(self, env):
-    #     Agent.__init__(self, env)
-
+class RandomWalker(MobileAgent):
     def behave(self):
         Agent.behave(self)
-        d = random.gauss(0, math.pi )
-        self.heading += 0.125 * d
+        d = 0.125 * random.gauss(0, math.pi )
+        self.heading += d
         self.acc = (self.lifecycle.current() + 1)
 
 class Environment:
@@ -145,6 +147,7 @@ class Environment:
 
     def map(self, ag_ids, func):
         ags = [self.agents[i] for i in ag_ids if i in self.agents.keys()]
+
         return  [func(ag) for ag in ags]
 
     def filter(self, ag_ids, pred):
@@ -162,13 +165,25 @@ class Environment:
             ag.step()
 
     def scan_at(self, x, y, r):
-        return set(ag.id for ag in self.agents.values() if math.hypot(ag.x - x, ag.y - y) < ag.radius + r)
+        return set(ag.id for ag in self.agents.values() if 
+            hasattr(ag, 'x') and
+            math.hypot(ag.x - x, ag.y - y) < ag.radius + r)
+
+    def get_random_position(self, radius, retries=100):
+        x = random.randrange(radius, self.width - radius)
+        y = random.randrange(radius, self.height - radius)
+        while retries > 0 and len(self.scan_at(x,y, radius)) > 0:
+            x = random.randrange(radius, self.width - radius)
+            y = random.randrange(radius, self.height - radius)
+            retries -= 1
+        return (x, y)
 
     def __repr__(self):
         split = "\n\t"
         return f"[{self.age}]{split.join(str(ag) for ag in self.agents.values())}"
 
 def clip(x, a, b):
+    '''bounds the value of x to [a, b]'''
     if x < a:
         return a
     elif b < x:

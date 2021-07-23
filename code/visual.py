@@ -1,3 +1,4 @@
+# COLORS FROM https://en.wikipedia.org/wiki/Web_colors#CSS_colors
 import math
 import pygame
 import bioagents
@@ -10,10 +11,15 @@ def deg(rad):
     return rad * R2D
 
 class Visual:
-    def __init__(self, env, width=640, height=480, fps=60):
+    def __init__(self, env, width=640, height=480, fps=10):
         pygame.init()
         self.size = (self.width, self.height) = (width, height)
-        self.screen = pygame.display.set_mode(self.size)
+
+        self.ground = pygame.display.set_mode(self.size)
+        self.biome = pygame.display.set_mode(self.size)
+        self.atmosphere = pygame.display.set_mode(self.size)
+        self.atmosphere.set_alpha(10)
+
         self.fps = fps
         self.clock = pygame.time.Clock()
         self.env = env
@@ -36,7 +42,7 @@ class Visual:
         pygame.draw.polygon(image, color, [(0, 0.5 * s), (0.5*s, s), (s, 0.5 * s),  (0.5*s, 0)])
         d = deg(ag.heading)
         image = pygame.transform.rotate(image, d)
-        self.screen.blit(image, (ag.x - ag.radius, ag.y - ag.radius))
+        self.biome.blit(image, (ag.x - ag.radius, ag.y - ag.radius))
 
     def draw_mite(self, ag):
         # stage = ag.lifecycle.current()
@@ -47,7 +53,7 @@ class Visual:
         pygame.draw.polygon(image, color, [(0, 0.25 * s), (0, 0.75 * s),  (s, 0.5 * s)])
         d = deg(ag.heading)
         image = pygame.transform.rotate(image, d)
-        self.screen.blit(image, (ag.x - ag.radius, ag.y - ag.radius))
+        self.biome.blit(image, (ag.x - ag.radius, ag.y - ag.radius))
 
     def draw_midge(self, ag):
         stage = ag.lifecycle.current()
@@ -58,7 +64,7 @@ class Visual:
         pygame.draw.polygon(image, color, [(0, 0), (0, s),  (0.5 * s, s), (s, 0.5 * s), (0.5*s, 0)])
         d = deg(ag.heading)
         image = pygame.transform.rotate(image, d)
-        self.screen.blit(image, (ag.x - ag.radius, ag.y - ag.radius))
+        self.biome.blit(image, (ag.x - ag.radius, ag.y - ag.radius))
 
     def draw_tree(self, ag):
         stage = ag.lifecycle.current()
@@ -67,13 +73,36 @@ class Visual:
         image = pygame.Surface( (s, s),  pygame.SRCALPHA)
         image.fill((0,0,0,0))
         pygame.draw.circle(image, color, (0.5 * s, 0.5 * s), 0.5 * s)
-        d = deg(ag.heading)
-        image = pygame.transform.rotate(image, d)
-        self.screen.blit(image, (ag.x - ag.radius, ag.y - ag.radius))
+        self.biome.blit(image, (ag.x - ag.radius, ag.y - ag.radius))
+
+    def draw_ground(self):
+        YEAR_COLORS = [
+            (0, 255, 127),  # SPRING -> SPRING GREEN
+            (34, 139,  34), # SUMMER -> FORENST GREEN
+            (218, 165,  32),# FALL -> GOLDENROD
+            (173, 216, 230) # WINTER -> LIGHT BLUE
+        ]
+        if hasattr(self.env, 'year'):
+            background = YEAR_COLORS[ self.env.year.lifecycle.current()]
+        else:
+            background = YEAR_COLORS[1]
+        self.biome.fill(background)
+
+    def draw_atmosphere(self):
+        DAY_COLORS = [
+            (255, 165, 0),      # DAWN -> ORANGE
+            (255, 248, 220),    # DAY -> CORNSILK
+            (75, 0, 130),   # TWILIGHT -> INDIGO
+            (25, 25, 112),  # NIGHT -> MIDNIGHT BLUE
+        ]
+        if hasattr(self.env, 'day'):
+            background = DAY_COLORS[ self.env.day.lifecycle.current()]
+        else:
+            background = DAY_COLORS[1]
+        self.atmosphere.fill(background)
 
     def draw(self):
-        background = (224, 224, 192)
-        self.screen.fill(background)
+        self.draw_ground()
         for ag in self.env.agents.values():
             if isinstance(ag, bioagents.Midge):
                 self.draw_midge(ag)
@@ -81,8 +110,11 @@ class Visual:
                 self.draw_mite(ag)
             elif isinstance(ag, bioagents.Tree):
                 self.draw_tree(ag)
+            elif isinstance(ag, bioagents.Year) or isinstance(ag, bioagents.Day):
+                pass
             else:
                 self.draw_default(ag)
+        # self.draw_atmosphere()
 
         pygame.display.flip()
 
