@@ -6,7 +6,7 @@ from core import Agent, MobileAgent, BasicLifeCycle
 SIZE, SENSOR, PHERHORMONE = GENOTYPE = range(3)
 LOW, MEDIUM, HIGH = GENE_RANGE = range(3)
 
-DAY_PARTS = 8 # 1 STEP = 8 HOURS
+DAY_PARTS = 24 # 1 STEP = 1 HOUR
 # EGG, LARVAE, PUPAE, ADULT
 MIDGE_LIFECYCLE = BasicLifeCycle(
     3 * DAY_PARTS,  # EGG
@@ -14,6 +14,10 @@ MIDGE_LIFECYCLE = BasicLifeCycle(
     3 * DAY_PARTS,  # PUPAE 
     8 * DAY_PARTS   # ADULT
 )
+
+PER_YEARSTAGE, \
+PER_DAYSTAGE,\
+PER_LIFESTAGE = PERCEPTIONS = range(3)
 
 class Midge(MobileAgent):
     def __init__(   self, env, 
@@ -33,6 +37,15 @@ class Midge(MobileAgent):
                 self.gene.append(random.choice(GENE_RANGE))
         else:
             self.gene = gene
+
+    def update_perception(self):
+        MobileAgent.update_perception(self)
+        self.per = [0 for _ in PERCEPTIONS]
+        #
+        self.per[PER_YEARSTAGE] = self.env.year.lifecycle.current_stage
+        self.per[PER_DAYSTAGE] = self.env.day.lifecycle.current_stage
+        self.per[PER_LIFESTAGE] = self.lifecycle.current_stage
+        #
 
     def behave(self):
         MobileAgent.behave(self)
@@ -105,10 +118,10 @@ class Tree(Agent):
         
 # DAWN, DAY, TWILIGHT, NIGHT
 DAY_CYCLE = BasicLifeCycle(
-    2,  # DAWN
-    2,  # DAY
-    2,  # TWILIGHT
-    2   # NIGHT
+    4,  # DAWN
+    8,  # DAY
+    4,  # TWILIGHT
+    8   # NIGHT
 )
 class Day(Agent):
     def __init__(self, env, lifecycle=DAY_CYCLE):

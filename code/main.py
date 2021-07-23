@@ -50,7 +50,14 @@ def test_03():
         else:
             ag = bioagents.Midge(env)
 
-    vis = visual.Visual(env, env.width, env.height, fps=30)
+    vis = visual.Visual(env, env.width, env.height, fps=6)
+    vis.go()
+
+def test_04():
+    env = core.Environment()
+    env.day = bioagents.Day(env)
+    env.year = bioagents.Year(env)
+    vis = visual.Visual(env, env.width, env.height, fps=6)
     vis.go()
 
 

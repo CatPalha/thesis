@@ -10,15 +10,31 @@ R2D = 180.0 / math.pi
 def deg(rad):
     return rad * R2D
 
+COLOR = {
+    'white':        (255, 255, 255),
+    'black':        (  0,   0,   0),
+    'spring_green': (  0, 255, 127),    # SPRING -> SPRING GREEN
+    'forest_green': ( 34, 139,  34),    # SUMMER -> FORENST GREEN
+    'goldenrod':    (218, 165,  32),    # FALL -> GOLDENROD
+    'light_blue':   (173, 216, 230),    # WINTER -> LIGHT BLUE
+
+    'orange':       (255, 165,   0),      # DAWN -> ORANGE
+    'cornsilk':     (255, 248, 220),    # DAY -> CORNSILK
+    'indigo':       ( 75,   0, 130),   # TWILIGHT -> INDIGO
+    'twilight':     (199, 157, 215),
+    'midnight_blue':( 25,  25, 112),  # NIGHT -> MIDNIGHT_BLUE
+}
+
 class Visual:
-    def __init__(self, env, width=640, height=480, fps=10):
+    def __init__(self, env, width=640, height=480, fps=60):
         pygame.init()
         self.size = (self.width, self.height) = (width, height)
 
-        self.ground = pygame.display.set_mode(self.size)
-        self.biome = pygame.display.set_mode(self.size)
-        self.atmosphere = pygame.display.set_mode(self.size)
-        self.atmosphere.set_alpha(10)
+        self.surface = pygame.display.set_mode(self.size)
+        self.ground = pygame.Surface(self.size, pygame.SRCALPHA)
+        self.biome = pygame.Surface(self.size, pygame.SRCALPHA)
+        self.atmosphere = pygame.Surface(self.size, pygame.SRCALPHA)
+        self.atmosphere.set_alpha(64)
 
         self.fps = fps
         self.clock = pygame.time.Clock()
@@ -35,7 +51,7 @@ class Visual:
         return True
 
     def draw_default(self, ag):
-        color = (50 * (1 + ag.lifecycle.current()), 50 * (1 + ag.lifecycle.current()), 64)
+        color = (50 * (1 + ag.lifecycle.current_stage), 50 * (1 + ag.lifecycle.current_stage), 64)
         s = int(2 * ag.radius)
         image = pygame.Surface( (s, s),  pygame.SRCALPHA)
         image.fill((0,0,0,0))
@@ -56,7 +72,7 @@ class Visual:
         self.biome.blit(image, (ag.x - ag.radius, ag.y - ag.radius))
 
     def draw_midge(self, ag):
-        stage = ag.lifecycle.current()
+        stage = ag.lifecycle.current_stage
         color = (64, 64, cv(stage,0,3,0,255))
         s = int(2 * ag.radius)
         image = pygame.Surface( (s, s),  pygame.SRCALPHA)
@@ -67,7 +83,7 @@ class Visual:
         self.biome.blit(image, (ag.x - ag.radius, ag.y - ag.radius))
 
     def draw_tree(self, ag):
-        stage = ag.lifecycle.current()
+        stage = ag.lifecycle.current_stage
         color = (64, cv(stage, 0.0, 1, 192, 64), 64)
         s = int(2 * ag.radius)
         image = pygame.Surface( (s, s),  pygame.SRCALPHA)
@@ -75,33 +91,47 @@ class Visual:
         pygame.draw.circle(image, color, (0.5 * s, 0.5 * s), 0.5 * s)
         self.biome.blit(image, (ag.x - ag.radius, ag.y - ag.radius))
 
+    def draw_cycle(self, surface, cycle, colors, y=0, height=16):
+        last_pos = 0
+        for i,t in enumerate(cycle.change_stage):
+            pos = int(self.width * t / cycle.total_duration())
+            color = COLOR[colors[i]]
+            rect = (last_pos, y, pos, height)
+            pygame.draw.rect(surface, color, rect)
+            last_pos = pos
+        p = int(self.width * cycle.cycle_age() / cycle.total_duration())
+        pygame.draw.rect(surface, COLOR['black'], (0, y, p, height))
+        # pygame.draw.rect(surface, (0,0,0), (0, y, p, height), height // 3)
+
     def draw_ground(self):
         YEAR_COLORS = [
-            (0, 255, 127),  # SPRING -> SPRING GREEN
-            (34, 139,  34), # SUMMER -> FORENST GREEN
-            (218, 165,  32),# FALL -> GOLDENROD
-            (173, 216, 230) # WINTER -> LIGHT BLUE
-        ]
-        if hasattr(self.env, 'year'):
-            background = YEAR_COLORS[ self.env.year.lifecycle.current()]
-        else:
-            background = YEAR_COLORS[1]
-        self.biome.fill(background)
+            'spring_green',
+            'forest_green',
+            'goldenrod',
+            'light_blue' ]
+        # cycle = self.env.year.lifecycle
+        # color = COLOR[YEAR_COLORS[ cycle.current_stage ]]
+        # p = int(self.width * cycle.cycle_age() / cycle.total_duration())
+        # pygame.draw.rect(self.biome, color, (0, 0, p, 16))
+        self.draw_cycle(self.atmosphere, self.env.year.lifecycle, YEAR_COLORS, y=0)
 
     def draw_atmosphere(self):
         DAY_COLORS = [
-            (255, 165, 0),      # DAWN -> ORANGE
-            (255, 248, 220),    # DAY -> CORNSILK
-            (75, 0, 130),   # TWILIGHT -> INDIGO
-            (25, 25, 112),  # NIGHT -> MIDNIGHT BLUE
+            'orange',
+            'cornsilk',
+            'twilight',
+            'midnight_blue'
         ]
-        if hasattr(self.env, 'day'):
-            background = DAY_COLORS[ self.env.day.lifecycle.current()]
-        else:
-            background = DAY_COLORS[1]
-        self.atmosphere.fill(background)
+        # cycle = self.env.day.lifecycle
+        # color = COLOR[DAY_COLORS[ cycle.current_stage ]]
+        # p = int(self.width * cycle.cycle_age() / cycle.total_duration())
+        # pygame.draw.rect(self.biome, color, (0, 16, p, 16))
+        self.draw_cycle(self.atmosphere, self.env.day.lifecycle, DAY_COLORS, y=16)
 
     def draw(self):
+        self.ground.fill(COLOR['white'])
+        self.biome.fill(COLOR['white'])
+        self.atmosphere.fill(COLOR['white'])
         self.draw_ground()
         for ag in self.env.agents.values():
             if isinstance(ag, bioagents.Midge):
@@ -114,8 +144,11 @@ class Visual:
                 pass
             else:
                 self.draw_default(ag)
-        # self.draw_atmosphere()
+        self.draw_atmosphere()
 
+        self.surface.blit(self.ground, (0,0))
+        self.surface.blit(self.biome, (0,0))
+        self.surface.blit(self.atmosphere, (0,0))
         pygame.display.flip()
 
     def go(self):

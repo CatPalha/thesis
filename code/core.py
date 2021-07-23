@@ -25,13 +25,20 @@ class BasicLifeCycle(LifeCycle):
         self.cycle_duration = self.change_stage[-1]
         self.current_stage = 0
 
-    def current(self):
-        return self.current_stage
+    def count_stages(self):
+        return len(self.durations)
+
+    def total_duration(self):
+        return self.cycle_duration
+
+    def cycle_age(self):
+        return self.age % self.cycle_duration
 
     def step(self):
         LifeCycle.step(self)
-        cycle_age = self.age % self.cycle_duration
-        if cycle_age < self.change_stage[-1] and cycle_age >= self.change_stage[ self.current_stage ]:
+        cycle_age = self.cycle_age()
+        if  cycle_age < self.cycle_duration and \
+            cycle_age >= self.change_stage[ self.current_stage ]:
             self.current_stage += 1
         elif self.repeating:
             self.current_stage = 0
@@ -43,6 +50,7 @@ class Agent:
         self.age = 0
         self.energy = energy
         self.lifecycle = lifecycle
+        self.per = list()
 
         self.env = env
         self.id = env.add_agent(self)
@@ -65,9 +73,14 @@ class Agent:
 
     def behave(self):
         pass
+
+    def update_perception(self):
+        self.per = list()
+
     def step(self):
         if self.energy > 0 and self.env is not None and self.lifecycle is not None:
             self.metabolism()
+            self.update_perception()
             self.behave()
             self.physics()
 
@@ -136,7 +149,7 @@ class RandomWalker(MobileAgent):
         Agent.behave(self)
         d = 0.125 * random.gauss(0, math.pi )
         self.heading += d
-        self.acc = (self.lifecycle.current() + 1)
+        self.acc = (self.lifecycle.current_stage + 1)
 
 class Environment:
     def __init__(self, width=1024, height=1024):
