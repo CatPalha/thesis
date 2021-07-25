@@ -6,7 +6,9 @@ from core import Agent, MobileAgent, BasicLifeCycle
 SIZE, SENSOR, PHERHORMONE = GENOTYPE = range(3)
 LOW, MEDIUM, HIGH = GENE_RANGE = range(3)
 
-DAY_PARTS = 24 # 1 STEP = 1 HOUR
+DAY_PARTS = 8 
+
+# 1 STEP = 8 HOURS
 # EGG, LARVAE, PUPAE, ADULT
 MIDGE_LIFECYCLE = BasicLifeCycle(
     3 * DAY_PARTS,  # EGG
@@ -15,9 +17,6 @@ MIDGE_LIFECYCLE = BasicLifeCycle(
     8 * DAY_PARTS   # ADULT
 )
 
-PER_YEARSTAGE, \
-PER_DAYSTAGE,\
-PER_LIFESTAGE = PERCEPTIONS = range(3)
 
 class Midge(MobileAgent):
     def __init__(   self, env, 
@@ -38,41 +37,70 @@ class Midge(MobileAgent):
         else:
             self.gene = gene
 
-    def update_perception(self):
-        MobileAgent.update_perception(self)
-        self.per = [0 for _ in PERCEPTIONS]
-        #
-        self.per[PER_YEARSTAGE] = self.env.year.lifecycle.current_stage
-        self.per[PER_DAYSTAGE] = self.env.day.lifecycle.current_stage
-        self.per[PER_LIFESTAGE] = self.lifecycle.current_stage
-        #
+        self.count_tree = 0
+        self.count_midge = 0
+
+        
 
     def behave(self):
         MobileAgent.behave(self)
+
 
         self.acc = 1.0
 
         detected = self.env.scan_at(self.x, self.y, self.sensor_range) - {self.id}        
         detected_mites = self.env.filter(detected, lambda ag: isinstance(ag, Mite))
         detected_trees = self.env.filter(detected, lambda ag: isinstance(ag, Tree))
+        detected_midges = self.env.filter(detected, lambda ag: isinstance(ag, Midge))
+
         if len(detected_mites) > 0:
+
             pos = self.env.map(detected_mites, lambda ag: (ag.x, ag.y))
             n = len(pos)
             x = sum(p[0] for p in pos) / n
             y = sum(p[1] for p in pos) / n
             self.head_to(x, y)
-            self.heading *= -1.0
-            self.acc = 2.0
+            d = random.gauss(0, math.pi )
+            self.heading += math.pi*d
+            
+            self.acc = 3.0
+
+            
+
         elif len(detected_trees) > 0:
+
+            self.count_tree += 1
+
             pos = self.env.map(detected_trees, lambda ag: (ag.x, ag.y))
             n = len(pos)
             x = sum(p[0] for p in pos) / n
             y = sum(p[1] for p in pos) / n
             self.head_to(x, y)
+
+            if self.count_tree % 3 == 0:
+                d = random.gauss(0, math.pi )
+                self.heading += math.pi*d
+
+        elif len(detected_midges) > 0:
+
+            self.count_midge += 1
+
+            pos = self.env.map(detected_midges, lambda ag: (ag.x, ag.y))
+            n = len(pos)
+            x = sum(p[0] for p in pos) / n
+            y = sum(p[1] for p in pos) / n
+            self.head_to(x, y)
+
+            if self.count_midge % 3 == 0:
+                d = random.gauss(0, math.pi )
+                self.heading += math.pi*d
+        
+  
         else:
             d = random.gauss(0, math.pi )
             self.heading += 0.125 * d
 
+        
 
 
 MITE_LIFECYCLE = BasicLifeCycle(
@@ -87,17 +115,21 @@ class Mite(MobileAgent):
         MobileAgent.behave(self)
         detected = self.env.scan_at(self.x, self.y, self.sensor_range) - {self.id}
         detected = self.env.filter(detected, lambda ag: isinstance(ag, Midge))
+        self.acc = 1.0
+
         if len(detected) > 0:
             pos = self.env.map(detected, lambda ag: (ag.x, ag.y))
             n = len(pos)
             x = sum(p[0] for p in pos) / n
             y = sum(p[1] for p in pos) / n
             self.head_to(x, y)
+            self.acc = 3.0
+            
         else:
             d = random.gauss(0, math.pi )
             self.heading += 0.125 * d
 
-        self.acc = 1.0
+
 
 
 # BLOOMING, NOT_BLOOMING
@@ -118,10 +150,10 @@ class Tree(Agent):
         
 # DAWN, DAY, TWILIGHT, NIGHT
 DAY_CYCLE = BasicLifeCycle(
-    4,  # DAWN
-    8,  # DAY
-    4,  # TWILIGHT
-    8   # NIGHT
+    2,  # DAWN
+    2,  # DAY
+    2,  # TWILIGHT
+    2   # NIGHT
 )
 class Day(Agent):
     def __init__(self, env, lifecycle=DAY_CYCLE):

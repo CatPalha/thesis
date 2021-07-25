@@ -37,27 +37,29 @@ def test_03():
     env.year = bioagents.Year(env)
     env.day = bioagents.Day(env)
 
-    for i in range(5):
-        ag = core.RandomWalker(env)    
-        ag.set_lifecycle(cycle)
+    # for i in range(5):
+    #     ag = core.RandomWalker(env)    
+    #     ag.set_lifecycle(cycle)
     
     for i in range(20):
         case = random.randint(0,2)
         if case == 0:
-            ag = bioagents.Tree(env)    
+            ag = bioagents.Tree(env)
+            #pass   
         elif case == 1:
             ag = bioagents.Mite(env)
+            #pass
         else:
             ag = bioagents.Midge(env)
 
-    vis = visual.Visual(env, env.width, env.height, fps=6)
+    vis = visual.Visual(env, env.width, env.height, fps=60)
     vis.go()
 
 def test_04():
     env = core.Environment()
     env.day = bioagents.Day(env)
     env.year = bioagents.Year(env)
-    vis = visual.Visual(env, env.width, env.height, fps=6)
+    vis = visual.Visual(env, env.width, env.height, fps=60)
     vis.go()
 
 

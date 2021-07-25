@@ -7,6 +7,7 @@ def cv(x, a=0, b=1, c=0, d=255):
     return c + (d - c) * float(x - a) / (b - a)
 
 R2D = 180.0 / math.pi
+
 def deg(rad):
     return rad * R2D
 
@@ -73,6 +74,7 @@ class Visual:
 
     def draw_midge(self, ag):
         stage = ag.lifecycle.current_stage
+        
         color = (64, 64, cv(stage,0,3,0,255))
         s = int(2 * ag.radius)
         image = pygame.Surface( (s, s),  pygame.SRCALPHA)
@@ -150,6 +152,7 @@ class Visual:
         self.surface.blit(self.biome, (0,0))
         self.surface.blit(self.atmosphere, (0,0))
         pygame.display.flip()
+        pygame.display.set_caption('Ecosystem')
 
     def go(self):
         loop = True

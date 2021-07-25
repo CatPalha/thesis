@@ -2,6 +2,7 @@ import math
 import random
 
 class LifeCycle:
+
     def __init__(self):
         self.age = 0
 
@@ -12,11 +13,16 @@ class LifeCycle:
         self.age += 1
 
 class BasicLifeCycle(LifeCycle):
+    
     def __init__(self, *durations):
         LifeCycle.__init__(self)
         self.repeating = True
         self.durations = durations
         self.change_stage = list()
+
+        #Allows to know, starting on zero when changes its stage
+        #By accumulating the duration in each stage, this values are appended to the list
+
         sum = 0
         for i,d in enumerate(self.durations):
             sum += d
