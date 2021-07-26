@@ -51,8 +51,6 @@ class BasicLifeCycle(LifeCycle):
         else:
             pass
 
-class Transition
-
 class Agent:
     def __init__(self, env, lifecycle=None, energy=1.0):        
         self.age = 0
@@ -63,6 +61,12 @@ class Agent:
         self.env = env
         self.id = env.add_agent(self)
         
+    def set_per(self, sesne, value):
+        self.per[sense] = value
+
+    def get_per(self, sense):
+        return self.per[sense]
+
     def physics(self):
         pass
 
