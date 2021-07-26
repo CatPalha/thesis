@@ -51,6 +51,8 @@ class BasicLifeCycle(LifeCycle):
         else:
             pass
 
+class Transition
+
 class Agent:
     def __init__(self, env, lifecycle=None, energy=1.0):        
         self.age = 0
@@ -124,6 +126,7 @@ class MobileAgent(Agent):
 
         self.energy = energy
 
+
         Agent.__init__(self, env, lifecycle)
         
     def physics(self):
@@ -145,6 +148,7 @@ class MobileAgent(Agent):
 
     def head_to(self, x, y):
         self.heading = math.atan2(y, x)
+        
 
     def __repr__(self):
         return f"[{self.id} age: {self.age} energy: {self.energy} stage: {self.lifecycle.current()} ]"

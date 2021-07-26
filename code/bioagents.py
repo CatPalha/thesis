@@ -17,7 +17,6 @@ MIDGE_LIFECYCLE = BasicLifeCycle(
     8 * DAY_PARTS   # ADULT
 )
 
-
 class Midge(MobileAgent):
     def __init__(   self, env, 
                     lifecycle=MIDGE_LIFECYCLE,
@@ -40,34 +39,13 @@ class Midge(MobileAgent):
         self.count_tree = 0
         self.count_midge = 0
 
-        
+        self.detected = self.env.scan_at(self.x, self.y, self.sensor_range) - {self.id} 
 
-    def behave(self):
-        MobileAgent.behave(self)
+    def feed(self):
 
+        detected_trees = self.env.filter(self.detected, lambda ag: isinstance(ag, Tree))
 
-        self.acc = 1.0
-
-        detected = self.env.scan_at(self.x, self.y, self.sensor_range) - {self.id}        
-        detected_mites = self.env.filter(detected, lambda ag: isinstance(ag, Mite))
-        detected_trees = self.env.filter(detected, lambda ag: isinstance(ag, Tree))
-        detected_midges = self.env.filter(detected, lambda ag: isinstance(ag, Midge))
-
-        if len(detected_mites) > 0:
-
-            pos = self.env.map(detected_mites, lambda ag: (ag.x, ag.y))
-            n = len(pos)
-            x = sum(p[0] for p in pos) / n
-            y = sum(p[1] for p in pos) / n
-            self.head_to(x, y)
-            d = random.gauss(0, math.pi )
-            self.heading += math.pi*d
-            
-            self.acc = 3.0
-
-            
-
-        elif len(detected_trees) > 0:
+        if len(detected_trees) > 0:
 
             self.count_tree += 1
 
@@ -80,8 +58,16 @@ class Midge(MobileAgent):
             if self.count_tree % 3 == 0:
                 d = random.gauss(0, math.pi )
                 self.heading += math.pi*d
+        
 
-        elif len(detected_midges) > 0:
+    def mate(self):
+        pass
+
+    def find_midge(self):
+
+        detected_midges = self.env.filter(self.detected, lambda ag: isinstance(ag, Midge))
+        
+        if len(detected_midges) > 0:
 
             self.count_midge += 1
 
@@ -94,14 +80,36 @@ class Midge(MobileAgent):
             if self.count_midge % 3 == 0:
                 d = random.gauss(0, math.pi )
                 self.heading += math.pi*d
-        
-  
-        else:
+
+
+    def flee(self):
+
+        detected_mites = self.env.filter(self.detected, lambda ag: isinstance(ag, Mite))
+
+        if len(detected_mites) > 0:
+
+            pos = self.env.map(detected_mites, lambda ag: (ag.x, ag.y))
+            n = len(pos)
+            x = sum(p[0] for p in pos) / n
+            y = sum(p[1] for p in pos) / n
+            self.head_to(x, y)
             d = random.gauss(0, math.pi )
-            self.heading += 0.125 * d
-
+            self.heading += math.pi*d
+            
+            self.acc = 3.0
         
 
+    def behave(self):
+        
+        MobileAgent.behave(self)
+
+
+        self.acc = 1.0      
+        
+        d = random.gauss(0, math.pi )
+        self.heading += 0.125 * d
+
+        
 
 MITE_LIFECYCLE = BasicLifeCycle(
     360 * DAY_PARTS

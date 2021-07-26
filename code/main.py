@@ -41,18 +41,18 @@ def test_03():
     #     ag = core.RandomWalker(env)    
     #     ag.set_lifecycle(cycle)
     
-    for i in range(20):
+    for i in range(10):
         case = random.randint(0,2)
         if case == 0:
-            ag = bioagents.Tree(env)
-            #pass   
+            #ag = bioagents.Tree(env)
+            pass   
         elif case == 1:
             ag = bioagents.Mite(env)
             #pass
         else:
             ag = bioagents.Midge(env)
 
-    vis = visual.Visual(env, env.width, env.height, fps=60)
+    vis = visual.Visual(env, env.width, env.height, fps=10)
     vis.go()
 
 def test_04():

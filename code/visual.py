@@ -27,7 +27,7 @@ COLOR = {
 }
 
 class Visual:
-    def __init__(self, env, width=640, height=480, fps=60):
+    def __init__(self, env, width=640, height=480, fps=10):
         pygame.init()
         self.size = (self.width, self.height) = (width, height)
 
