@@ -17,6 +17,7 @@ MIDGE_LIFECYCLE = BasicLifeCycle(
     8 * DAY_PARTS   # ADULT
 )
 
+TREE_DEFICIT, TREE_NEUTRAL, TREE_EXCESS = TREE_FEELINGS = range(3)
 class Midge(MobileAgent):
     def __init__(   self, env, 
                     lifecycle=MIDGE_LIFECYCLE,
@@ -36,11 +37,22 @@ class Midge(MobileAgent):
         else:
             self.gene = gene
 
+        self.tree_feeling = TREE_DEFICIT
+
         self.count_tree = 0
         self.count_midge = 0
 
         self.detected = self.env.scan_at(self.x, self.y, self.sensor_range) - {self.id} 
 
+
+    def update_perception(self):
+        Agent.update_perception(self)
+
+        
+
+    def process_tree_feeling(self):
+        pass
+    
     def feed(self):
 
         detected_trees = self.env.filter(self.detected, lambda ag: isinstance(ag, Tree))
